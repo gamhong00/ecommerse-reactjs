@@ -7,15 +7,25 @@ import HeadingListProducts from '@components/HeadingListProduct/HeadingListProdu
 import { useEffect, useState } from 'react';
 import { getProducts } from '@/apis/productsService';
 import PopularProduct from '@components/PopularProduct/PopularProduct';
+import SaleHomepage from '@components/SaleHomepage/SaleHomepage';
+import MyFooter from '@components/Footer/Footer';
 
 function HomePage() {
     const [listProducts, setListProducts] = useState([]);
 
     useEffect(() => {
-        getProducts().then((res) => {
+        const query = {
+            sortType: 0,
+            page: 1,
+            limit: 10
+        };
+
+        getProducts(query).then((res) => {
             setListProducts(res.contents);
         });
     }, []);
+
+    // console.log(listProducts);
 
     const { container } = styles;
     return (
@@ -26,10 +36,9 @@ function HomePage() {
                 <Info />
                 <AdvanceHeadling />
                 <HeadingListProducts data={listProducts.slice(0, 2)} />
-                <PopularProduct
-                    data={listProducts.slice(2, listProducts.length)}
-                />
-                <div style={{ height: '200px' }}></div>
+                <PopularProduct data={listProducts.slice(2, 10)} />
+                <SaleHomepage />
+                <MyFooter />
             </div>
         </>
     );

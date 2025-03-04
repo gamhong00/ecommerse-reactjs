@@ -4,7 +4,6 @@ import ProductItem from '@components/ProductItem/ProductItem';
 
 function PopularProduct({ data }) {
     const { container } = styles;
-    console.log(data);
 
     return (
         <>
