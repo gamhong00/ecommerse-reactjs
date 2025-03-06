@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import routers from '@/routers/routers';
 import { Suspense } from 'react';
 import { SideBarProvider } from '@/contexts/SideBarProvider';
-import SideBar from '@components/SideBar/SideBar';
+import SideBar from '@components/Sidebar/Sidebar';
 
 function App() {
     return (
