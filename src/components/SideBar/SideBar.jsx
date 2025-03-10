@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import { RiCloseFill } from 'react-icons/ri';
 import Login from '@components/ContentSideBar/Login/Login';
 import Compare from '@components/ContentSideBar/Compare/Compare';
+import WishList from '@components/ContentSideBar/WishList/WishList';
+import Cart from '@components/ContentSideBar/Cart/Cart';
 
 function SideBar() {
     const { container, overlay, sideBar, slideSideBar, boxIcon } = styles;
@@ -22,10 +24,10 @@ function SideBar() {
                 return <Compare />;
 
             case 'wishlist':
-                return 'wishlist';
+                return <WishList />;
 
             case 'cart':
-                return 'cart';
+                return <Cart />;
 
             default:
                 return <Login />;
