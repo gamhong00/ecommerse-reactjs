@@ -3,16 +3,20 @@ import styles from './styles.module.scss';
 import Button from '@components/Button/Button';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { ToastContext } from '@/contexts/ToastProvider';
 import { register, signIn, getInfo } from '@/apis/authService';
 import Cookies from 'js-cookie';
+import { SideBarContext } from '@/contexts/SideBarProvider';
+import { StoreContext } from '@/contexts/StoreProvider';
 
 function Login() {
     const { container, title, boxRememberMe, lostPw, boxBtn } = styles;
     const [isRegister, setIsRegister] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useContext(ToastContext);
+    const { setIsOpen, handleGetListProductsCart } = useContext(SideBarContext);
+    const { setUserId } = useContext(StoreContext);
 
     const formik = useFormik({
         initialValues: { email: '', password: '' },
@@ -54,13 +58,18 @@ function Login() {
                         setIsLoading(false);
                         // console.log(res);
                         const { id, token, refreshToken } = res.data;
-
+                        setUserId(id);
                         Cookies.set('token', token);
                         Cookies.set('refreshToken', refreshToken);
+                        Cookies.set('userId', id);
+                        toast.success('Sign in successfully!');
+                        setIsOpen(false);
+                        handleGetListProductsCart(id, 'cart ');
                     })
                     .catch((err) => {
                         // toast.error(err.response.data.message);
                         setIsLoading(false);
+                        toast.error('Sign in failed!');
                     });
             }
         }
@@ -70,10 +79,6 @@ function Login() {
         setIsRegister(!isRegister);
         formik.resetForm();
     };
-
-    useEffect(() => {
-        getInfo();
-    }, []);
 
     return (
         <div className={container}>

@@ -2,4 +2,8 @@
 
 body {
     font-family: 'Roboto Mono', serif;
+
+    // transform: scale(0.75); //
+    // transform-origin: top left; /* Giữ nguyên vị trí góc trên cùng bên trái */
+    // width: 133.33%; /* Đảm bảo không bị co ngắn nội dung */
 }

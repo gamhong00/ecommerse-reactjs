@@ -3,9 +3,6 @@ import { dataBoxIcon, dataMenu } from './constants';
 import Menu from './Menu/Menu';
 import styles from './styles.module.scss';
 import Logo from '@icons/image/Logo-retina.png';
-import reloadIcon from '@icons/svgs/reloadIcon.svg';
-import heartIcon from '@icons/svgs/heartIcon.svg';
-import cartIcon from '@icons/svgs/cartIcon.svg';
 import { TfiReload } from 'react-icons/tfi';
 import { FaRegHeart } from 'react-icons/fa';
 import { PiShoppingCart } from 'react-icons/pi';
@@ -23,26 +20,20 @@ function MyHeader() {
         containerBox,
         container,
         fixedHeader,
-        topHeader
+        topHeader,
+        boxCart,
+        quantity
     } = styles;
 
     const { scrollPosition } = useScrollHandling();
     const [fixedPosition, setFixedPosition] = useState(false);
-    const { setIsOpen, setType } = useContext(SideBarContext);
+    const { setIsOpen, setType, listProductCart } = useContext(SideBarContext);
 
     const handleOpenSidebar = (type) => {
         setIsOpen(true);
         setType(type);
     };
     useEffect(() => {
-        // if (scrollPosition > 80) {
-        //     setFixedPosition(true);
-        // } else {
-        //     setFixedPosition(false);
-        // }
-
-        // setFixedPosition(scrollPosition > 80 ? true : false);
-
         setFixedPosition(scrollPosition > 80);
     });
 
@@ -97,10 +88,16 @@ function MyHeader() {
                             style={{ fontSize: '20px' }}
                             onClick={() => handleOpenSidebar('wishlist')}
                         />
-                        <PiShoppingCart
-                            style={{ fontSize: '25px' }}
-                            onClick={() => handleOpenSidebar('cart')}
-                        />
+                        <div className={boxCart}>
+                            <PiShoppingCart
+                                style={{ fontSize: '25px' }}
+                                onClick={() => handleOpenSidebar('cart')}
+                            />
+
+                            <div className={quantity}>
+                                {listProductCart.length}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
