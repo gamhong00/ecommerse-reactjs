@@ -104,6 +104,7 @@ function ProductItem({
             setIsShowGrid(ourShopStore?.isShowGrid);
         }
     }, [isHomepage, ourShopStore?.isShowGrid]);
+
     return (
         <div className={isShowGrid ? '' : containerItem}>
             <div

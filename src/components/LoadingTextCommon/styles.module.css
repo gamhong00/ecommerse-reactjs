@@ -1,0 +1,11 @@
+.rotate {
+  animation: loading 1s linear infinite;
+}
+@keyframes loading {
+  0% {
+    transform: rotate(0);
+  }
+  10% {
+    transform: rotate(360deg);
+  }
+}/*# sourceMappingURL=styles.module.css.map */
