@@ -53,13 +53,13 @@ function Login() {
 
             if (!isRegister) {
                 await signIn({ username, password })
-                    .then((res) => {
+                    .then(async (res) => {
                         // toast.success(res.data.message);
                         setIsLoading(false);
                         // console.log(res);
                         const { id, token, refreshToken } = res.data;
                         setUserId(id);
-                        Cookies.set('token', token);
+                        Cookies.set('token', token, { expires: 7 });
                         Cookies.set('refreshToken', refreshToken);
                         Cookies.set('userId', id);
                         toast.success('Sign in successfully!');

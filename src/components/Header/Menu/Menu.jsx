@@ -25,7 +25,7 @@ function Menu({ content, href }) {
 
     const handleRenderText = (content) => {
         if (content === 'Sign in' && userInfo) {
-            return `Hello: ${userInfo.username}`;
+            return `Hello: ${userInfo?.username}`;
         } else {
             return content;
         }

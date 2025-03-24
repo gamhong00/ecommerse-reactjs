@@ -20,23 +20,24 @@ function Cart() {
         containerListItem
     } = styles;
 
-    const natigate = useNavigate();
+    const navigate = useNavigate();
 
     const { listProductCart, isLoading, setIsOpen } =
         useContext(SideBarContext);
 
     const handleNatigateToShop = () => {
-        natigate('/shop');
+        navigate('/shop');
         setIsOpen(false);
     };
-
-    console.log(listProductCart);
 
     const subTotal = listProductCart.reduce((acc, item) => {
         return acc + item.total;
     }, 0);
 
-    console.log(subTotal);
+    const handleNavigateToCart = () => {
+        navigate('/cart');
+        setIsOpen(false);
+    };
 
     return (
         <div
@@ -77,7 +78,10 @@ function Cart() {
                             <p>${subTotal}</p>
                         </div>
                         <div className={boxBtn}>
-                            <Button content={'VIEW CART'} />
+                            <Button
+                                content={'VIEW CART'}
+                                onClick={handleNavigateToCart}
+                            />
                             <Button content={'CHECKOUT'} isPrimary={false} />
                         </div>
                     </div>
