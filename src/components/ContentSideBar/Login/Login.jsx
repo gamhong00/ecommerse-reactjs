@@ -53,7 +53,7 @@ function Login() {
 
             if (!isRegister) {
                 await signIn({ username, password })
-                    .then(async (res) => {
+                    .then((res) => {
                         // toast.success(res.data.message);
                         setIsLoading(false);
                         // console.log(res);
@@ -63,6 +63,7 @@ function Login() {
                         Cookies.set('refreshToken', refreshToken);
                         Cookies.set('userId', id);
                         toast.success('Sign in successfully!');
+
                         setIsOpen(false);
                         handleGetListProductsCart(id, 'cart ');
                     })

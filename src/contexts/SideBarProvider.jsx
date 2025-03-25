@@ -44,7 +44,7 @@ export const SideBarProvider = ({ children }) => {
 
     useEffect(() => {
         handleGetListProductsCart(userId, 'cart');
-    }, [userId]);
+    }, []);
 
     return (
         <SideBarContext.Provider value={value}>

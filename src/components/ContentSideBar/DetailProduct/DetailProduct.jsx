@@ -1,5 +1,5 @@
 import { SideBarContext } from '@contexts/SideBarProvider';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import styles from './styles.module.scss';
 import SliderCommon from '@/components/SliderCommon/SliderCommon';
 import SelectBox from '@pages/OurShop/components/SelectBox';
@@ -9,6 +9,8 @@ import { TfiReload } from 'react-icons/tfi';
 import { CiHeart } from 'react-icons/ci';
 import { RiTwitterXFill } from 'react-icons/ri';
 import { BiLogoFacebook } from 'react-icons/bi';
+import classNames from 'classnames';
+import { addProductToCart } from '@/apis/cartService';
 
 function DetailProduct() {
     const {
@@ -24,9 +26,20 @@ function DetailProduct() {
         line,
         or,
         boxAddOther,
-        boxFooter
+        boxFooter,
+        isActive
     } = styles;
-    const { detailProduct } = useContext(SideBarContext);
+
+    const {
+        detailProduct,
+        userId,
+        setType,
+        handleGetListProductsCart,
+        setIsLoading,
+        setIsOpen
+    } = useContext(SideBarContext);
+    const [chooseSize, setChooseSize] = useState('');
+    const [quantity, setQuantity] = useState(1);
 
     const showOptions = [
         { label: '1', value: '1' },
@@ -38,7 +51,40 @@ function DetailProduct() {
         { label: '7', value: '7' }
     ];
 
-    console.log(detailProduct);
+    const handleGetSize = (value) => {
+        setChooseSize(value);
+    };
+
+    const handleClearSize = () => {
+        setChooseSize('');
+    };
+
+    const handleGetQuantity = (value) => {
+        setQuantity(value);
+    };
+
+    const handleAddTocart = () => {
+        const data = {
+            userId,
+            productId: detailProduct._id,
+            quantity,
+            size: chooseSize,
+            isMultiple: true
+        };
+        setIsOpen(false);
+        setIsLoading(true);
+        addProductToCart(data)
+            .then((res) => {
+                setIsOpen(true);
+                setType('cart');
+                handleGetListProductsCart(userId, 'cart');
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    // console.log(detailProduct);
 
     return (
         <div className={container}>
@@ -48,17 +94,41 @@ function DetailProduct() {
             <div className={price}>${detailProduct.price}</div>
             <div className={des}>{detailProduct.description}</div>
 
-            <div className={label}>Size</div>
+            <div className={label}>Size {chooseSize}</div>
             <div className={boxSize}>
                 {detailProduct.size.map((item, index) => (
-                    <div className={size} key={index}>
+                    <div
+                        className={classNames(size, {
+                            [isActive]: item.name === chooseSize
+                        })}
+                        key={index}
+                        onClick={() => handleGetSize(item.name)}
+                    >
                         {item.name}
                     </div>
                 ))}
             </div>
 
+            {chooseSize && (
+                <div
+                    style={{
+                        fontSize: '12px',
+                        marginTop: '3px',
+                        cursor: 'pointer'
+                    }}
+                    onClick={handleClearSize}
+                >
+                    clear
+                </div>
+            )}
+
             <div className={boxAddToCart}>
-                <SelectBox options={showOptions} type='show' />
+                <SelectBox
+                    options={showOptions}
+                    type='show'
+                    defaultValue={quantity}
+                    getValue={handleGetQuantity}
+                />
 
                 <div>
                     <Button
@@ -67,6 +137,7 @@ function DetailProduct() {
                                 <PiShoppingCartLight /> ADD TO CART
                             </div>
                         }
+                        onClick={handleAddTocart}
                     />
                 </div>
             </div>

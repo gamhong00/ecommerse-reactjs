@@ -16,8 +16,6 @@ function SliderCommon({ data }) {
         prevArrow: <MdOutlineArrowBackIos />
     };
 
-    console.log(data);
-
     return (
         <Slider {...settings}>
             {data.map((src, index) => {
