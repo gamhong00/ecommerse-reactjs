@@ -106,8 +106,6 @@ function ProductItem({
     const handleNavigateToDetail = () => {
         const path = `/product/${details._id}`;
 
-        console.log(path);
-
         navigate(path);
     };
 
@@ -123,12 +121,12 @@ function ProductItem({
         <div
             className={isShowGrid ? '' : containerItem}
             style={{ cursor: 'pointer' }}
-            onClick={handleNavigateToDetail}
         >
             <div
                 className={classNames(boxImg, {
                     [largImg]: !isShowGrid
                 })}
+                onClick={handleNavigateToDetail}
             >
                 <img src={src} alt='' />
                 <img src={prevSrc} alt='' className={showImgWhenHover} />

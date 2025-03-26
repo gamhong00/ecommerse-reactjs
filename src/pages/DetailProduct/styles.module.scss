@@ -13,7 +13,7 @@
     }
 
     .contentSection {
-        @include flex_box_custom(unset, flex-start, 0px);
+        @include flex_box_custom(unset, flex-start, 20px);
 
         .imageBox {
             max-width: 610px;
@@ -112,6 +112,47 @@
 
                 span {
                     padding: 0 10px;
+                    font-size: 12px;
+                    color: $four_color;
+                }
+            }
+
+            .addFunc {
+                @include flex_box_custom(unset, center, 10px);
+
+                margin: 30px 0;
+
+                div {
+                    @include flex_box_custom(center, center, 0px);
+
+                    cursor: pointer;
+                    border: 1px solid #e1e1e1;
+                    border-radius: 50%;
+                    padding: 10px;
+
+                    svg {
+                        font-size: 30px;
+                    }
+                }
+
+                div:last-child {
+                    padding: 13px;
+
+                    svg {
+                        font-size: 25px;
+                    }
+                }
+            }
+
+            .info {
+                @include flex_box_custom(unset, flex-start, 10px);
+
+                margin: 20px 0;
+                flex-direction: column;
+                color: $four_color;
+
+                span {
+                    color: $seconddary_color;
                 }
             }
         }
