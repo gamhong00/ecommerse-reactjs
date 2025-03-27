@@ -5,6 +5,8 @@ import Button from '@/components/Button/Button';
 import { CiHeart } from 'react-icons/ci';
 import { TfiReload } from 'react-icons/tfi';
 import PaymentMethods from '@/components/PaymentMethods/PaymentsMethods';
+import AccordionMenu from '@/components/AccordionMenu';
+import { useState } from 'react';
 
 function DetailProduct() {
     const {
@@ -25,6 +27,21 @@ function DetailProduct() {
         addFunc,
         info
     } = styles;
+
+    const [menuSelected, setMenuSelected] = useState(1);
+
+    const dataAccordionMenu = [
+        {
+            id: 1,
+            titleMenu: 'Additional information',
+            content: <div>content Additional</div>
+        },
+        { id: 2, titleMenu: 'Reviews (0)', content: <div>content review</div> }
+    ];
+
+    const handleSetMenuSelected = (id) => {
+        setMenuSelected(id);
+    };
 
     return (
         <div>
@@ -121,6 +138,20 @@ function DetailProduct() {
                                     Category: <span>All</span>
                                 </div>
                             </div>
+
+                            {dataAccordionMenu.map((item, index) => {
+                                return (
+                                    <AccordionMenu
+                                        key={index}
+                                        titleMenu={item.titleMenu}
+                                        contentJsx={item.content}
+                                        onClick={() =>
+                                            handleSetMenuSelected(item.id)
+                                        }
+                                        isSelected={menuSelected === item.id}
+                                    />
+                                );
+                            })}
                         </div>
                     </div>
                 </MainLayout>
