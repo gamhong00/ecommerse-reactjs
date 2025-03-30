@@ -7,6 +7,10 @@ import { TfiReload } from 'react-icons/tfi';
 import PaymentMethods from '@/components/PaymentMethods/PaymentsMethods';
 import AccordionMenu from '@/components/AccordionMenu';
 import { useState } from 'react';
+import InformationProduct from '@pages/DetailProduct/components/Information';
+import ReviewProduct from '@pages/DetailProduct/components/Review';
+import MyFooter from '@/components/Footer/Footer';
+import SliderCommon from '@/components/SliderCommon/SliderCommon';
 
 function DetailProduct() {
     const {
@@ -34,14 +38,35 @@ function DetailProduct() {
         {
             id: 1,
             titleMenu: 'Additional information',
-            content: <div>content Additional</div>
+            content: <InformationProduct />
         },
-        { id: 2, titleMenu: 'Reviews (0)', content: <div>content review</div> }
+        { id: 2, titleMenu: 'Reviews (0)', content: <ReviewProduct /> }
     ];
 
     const handleSetMenuSelected = (id) => {
         setMenuSelected(id);
     };
+
+    const tempDataSlider = [
+        {
+            image: 'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
+            name: 'test product',
+            price: '1,879.99',
+            size: [{ name: 'L' }, { name: 'M' }]
+        },
+        {
+            image: 'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
+            name: 'test product',
+            price: '1,879.99',
+            size: [{ name: 'L' }, { name: 'M' }]
+        },
+        {
+            image: 'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
+            name: 'test product',
+            price: '1,879.99',
+            size: [{ name: 'L' }, { name: 'M' }]
+        }
+    ];
 
     return (
         <div>
@@ -154,8 +179,20 @@ function DetailProduct() {
                             })}
                         </div>
                     </div>
+
+                    <div>
+                        <div>Related products</div>
+
+                        <SliderCommon
+                            data={tempDataSlider}
+                            isProductItem
+                            showItem={4}
+                        />
+                    </div>
                 </MainLayout>
             </div>
+
+            <MyFooter />
         </div>
     );
 }
