@@ -6,15 +6,16 @@ import { CiHeart } from 'react-icons/ci';
 import { TfiReload } from 'react-icons/tfi';
 import PaymentMethods from '@/components/PaymentMethods/PaymentsMethods';
 import AccordionMenu from '@/components/AccordionMenu';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import InformationProduct from '@pages/DetailProduct/components/Information';
 import ReviewProduct from '@pages/DetailProduct/components/Review';
 import MyFooter from '@/components/Footer/Footer';
 import SliderCommon from '@/components/SliderCommon/SliderCommon';
 import ReactImageMagnifier from 'simple-image-magnifier/react';
-import { data } from 'react-router-dom';
+import { data, useParams } from 'react-router-dom';
 import { Value } from 'sass';
 import classNames from 'classnames';
+import { getDetailProduct } from '@/apis/productsService';
 
 const tempDataSize = [
     {
@@ -56,6 +57,11 @@ function DetailProduct() {
     const [menuSelected, setMenuSelected] = useState(1);
     const [sizeSelected, setSizeSelected] = useState('');
     const [quantity, setQuantity] = useState(1);
+    const [data, setData] = useState();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const param = useParams();
+    console.log(param);
 
     const dataAccordionMenu = [
         {
@@ -120,6 +126,27 @@ function DetailProduct() {
         if (quantity === 1 && type === DECREMENT) return;
         setQuantity((prev) => (type === INCREMENT ? (prev += 1) : (prev -= 1)));
     };
+
+    const fetchDataDetail = async (id) => {
+        setIsLoading(true);
+        try {
+            const data = await getDetailProduct(id);
+
+            setData(data);
+            setIsLoading(false);
+        } catch (error) {
+            console.log(error);
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (param.id) {
+            fetchDataDetail(param.id);
+        }
+    }, [param]);
+
+    console.log(data);
 
     return (
         <div>
