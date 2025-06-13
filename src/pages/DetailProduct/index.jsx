@@ -15,18 +15,8 @@ import ReactImageMagnifier from 'simple-image-magnifier/react';
 import { data, useParams } from 'react-router-dom';
 import { Value } from 'sass';
 import classNames from 'classnames';
-import { getDetailProduct } from '@/apis/productsService';
-
-const tempDataSize = [
-    {
-        name: 'M',
-        amount: '1000'
-    },
-    {
-        name: 'L',
-        amount: '1000'
-    }
-];
+import { getDetailProduct, getRelatedProducts } from '@/apis/productsService';
+import LoadingTextCommon from '@/components/LoadingTextCommon/LoadingTextCommon';
 
 const INCREMENT = 'increment';
 const DECREMENT = 'decrement';
@@ -51,17 +41,18 @@ function DetailProduct() {
         info,
         active,
         clear,
-        activeDisableBtn
+        activeDisableBtn,
+        loading
     } = styles;
 
     const [menuSelected, setMenuSelected] = useState(1);
     const [sizeSelected, setSizeSelected] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [data, setData] = useState();
+    const [relatedData, setRelatedData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const param = useParams();
-    console.log(param);
 
     const dataAccordionMenu = [
         {
@@ -70,13 +61,6 @@ function DetailProduct() {
             content: <InformationProduct />
         },
         { id: 2, titleMenu: 'Reviews (0)', content: <ReviewProduct /> }
-    ];
-
-    const dataImageDetail = [
-        'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
-        'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
-        'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
-        'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg'
     ];
 
     const handleRenderZoomImage = (src) => {
@@ -140,13 +124,25 @@ function DetailProduct() {
         }
     };
 
+    const fetchDataRelatedProduct = async (id) => {
+        setIsLoading(true);
+        try {
+            const data = await getRelatedProducts(id);
+            setRelatedData(data);
+            setIsLoading(false);
+        } catch (error) {
+            console.log(error);
+            setIsLoading(false);
+        }
+    };
+
+    console.log(relatedData);
     useEffect(() => {
         if (param.id) {
             fetchDataDetail(param.id);
+            fetchDataRelatedProduct(param.id);
         }
     }, [param]);
-
-    console.log(data);
 
     return (
         <div>
@@ -160,144 +156,152 @@ function DetailProduct() {
                         </div>
                     </div>
 
-                    <div className={contentSection}>
-                        <div className={imageBox}>
-                            {dataImageDetail.map((item, index) =>
-                                handleRenderZoomImage(item)
-                            )}
+                    {isLoading ? (
+                        <div className={loading}>
+                            <LoadingTextCommon />
                         </div>
-                        <div className={infoBox}>
-                            <h1>Title Product</h1>
-                            <p className={price}>$1,879.99</p>
-                            <p className={description}>
-                                Amet, elit tellus, nisi odio velit ut. Euismod
-                                sit arcu, quisque arcu purus orci leo.
-                            </p>
+                    ) : (
+                        <div className={contentSection}>
+                            <div className={imageBox}>
+                                {data?.images.map((item, index) =>
+                                    handleRenderZoomImage(item)
+                                )}
+                            </div>
+                            <div className={infoBox}>
+                                <h1>{data?.name}</h1>
+                                <p className={price}>${data?.price}</p>
+                                <p className={description}>
+                                    {data?.description}
+                                </p>
 
-                            <p className={titleSize}>Size {sizeSelected}</p>
-                            <div className={boxSize}>
-                                {tempDataSize.map((itemSize, index) => {
-                                    return (
+                                <p className={titleSize}>Size {sizeSelected}</p>
+                                <div className={boxSize}>
+                                    {data?.size.map((itemSize, index) => {
+                                        return (
+                                            <div
+                                                className={classNames(size, {
+                                                    [active]:
+                                                        sizeSelected ===
+                                                        itemSize.name
+                                                })}
+                                                key={index}
+                                                onClick={() =>
+                                                    handleSelectedSize(
+                                                        itemSize.name
+                                                    )
+                                                }
+                                            >
+                                                {itemSize.name}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {sizeSelected && (
+                                    <p
+                                        className={clear}
+                                        onClick={handleClearSizeSelected}
+                                    >
+                                        clear
+                                    </p>
+                                )}
+
+                                <div className={functionInfo}>
+                                    <div className={incrementAmount}>
                                         <div
-                                            className={classNames(size, {
-                                                [active]:
-                                                    sizeSelected ===
-                                                    itemSize.name
-                                            })}
-                                            key={index}
                                             onClick={() =>
-                                                handleSelectedSize(
-                                                    itemSize.name
-                                                )
+                                                handleSetQuantity(DECREMENT)
                                             }
                                         >
-                                            {itemSize.name}
+                                            -
                                         </div>
-                                    );
-                                })}
-                            </div>
-
-                            {sizeSelected && (
-                                <p
-                                    className={clear}
-                                    onClick={handleClearSizeSelected}
-                                >
-                                    clear
-                                </p>
-                            )}
-
-                            <div className={functionInfo}>
-                                <div className={incrementAmount}>
-                                    <div
-                                        onClick={() =>
-                                            handleSetQuantity(DECREMENT)
-                                        }
-                                    >
-                                        -
+                                        <div>{quantity}</div>
+                                        <div
+                                            onClick={() =>
+                                                handleSetQuantity(INCREMENT)
+                                            }
+                                        >
+                                            +
+                                        </div>
                                     </div>
-                                    <div>{quantity}</div>
-                                    <div
-                                        onClick={() =>
-                                            handleSetQuantity(INCREMENT)
-                                        }
-                                    >
-                                        +
+
+                                    <div className={boxBtn}>
+                                        <Button
+                                            content={'ADD TO CART'}
+                                            customClassname={
+                                                !sizeSelected &&
+                                                activeDisableBtn
+                                            }
+                                        />
                                     </div>
                                 </div>
 
-                                <div className={boxBtn}>
+                                <div className={orSection}>
+                                    <div></div>
+                                    <span>OR</span>
+                                    <div></div>
+                                </div>
+
+                                <div>
                                     <Button
-                                        content={'ADD TO CART'}
+                                        content={'BUY NOW'}
                                         customClassname={
                                             !sizeSelected && activeDisableBtn
                                         }
                                     />
                                 </div>
-                            </div>
 
-                            <div className={orSection}>
-                                <div></div>
-                                <span>OR</span>
-                                <div></div>
-                            </div>
-
-                            <div>
-                                <Button
-                                    content={'BUY NOW'}
-                                    customClassname={
-                                        !sizeSelected && activeDisableBtn
-                                    }
-                                />
-                            </div>
-
-                            <div className={addFunc}>
-                                <div>
-                                    <CiHeart />
-                                </div>
-                                <div>
-                                    <TfiReload />
-                                </div>
-                            </div>
-
-                            <div>
-                                <PaymentMethods />
-                            </div>
-
-                            <div className={info}>
-                                <div>
-                                    Brand: <span>Brand 04</span>
+                                <div className={addFunc}>
+                                    <div>
+                                        <CiHeart />
+                                    </div>
+                                    <div>
+                                        <TfiReload />
+                                    </div>
                                 </div>
 
                                 <div>
-                                    SKU: <span>2345</span>
+                                    <PaymentMethods />
                                 </div>
 
-                                <div>
-                                    Category: <span>All</span>
+                                <div className={info}>
+                                    <div>
+                                        Brand: <span>Brand 04</span>
+                                    </div>
+
+                                    <div>
+                                        SKU: <span>2345</span>
+                                    </div>
+
+                                    <div>
+                                        Category: <span>All</span>
+                                    </div>
                                 </div>
+
+                                {dataAccordionMenu.map((item, index) => {
+                                    return (
+                                        <AccordionMenu
+                                            key={index}
+                                            titleMenu={item.titleMenu}
+                                            contentJsx={item.content}
+                                            onClick={() =>
+                                                handleSetMenuSelected(item.id)
+                                            }
+                                            isSelected={
+                                                menuSelected === item.id
+                                            }
+                                        />
+                                    );
+                                })}
                             </div>
-
-                            {dataAccordionMenu.map((item, index) => {
-                                return (
-                                    <AccordionMenu
-                                        key={index}
-                                        titleMenu={item.titleMenu}
-                                        contentJsx={item.content}
-                                        onClick={() =>
-                                            handleSetMenuSelected(item.id)
-                                        }
-                                        isSelected={menuSelected === item.id}
-                                    />
-                                );
-                            })}
                         </div>
-                    </div>
+                    )}
 
                     <div>
                         <div>Related products</div>
 
                         <SliderCommon
-                            data={tempDataSlider}
+                            data={relatedData}
                             isProductItem
                             showItem={4}
                         />
