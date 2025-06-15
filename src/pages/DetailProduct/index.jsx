@@ -6,17 +6,20 @@ import { CiHeart } from 'react-icons/ci';
 import { TfiReload } from 'react-icons/tfi';
 import PaymentMethods from '@/components/PaymentMethods/PaymentsMethods';
 import AccordionMenu from '@/components/AccordionMenu';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import InformationProduct from '@pages/DetailProduct/components/Information';
 import ReviewProduct from '@pages/DetailProduct/components/Review';
 import MyFooter from '@/components/Footer/Footer';
 import SliderCommon from '@/components/SliderCommon/SliderCommon';
 import ReactImageMagnifier from 'simple-image-magnifier/react';
-import { data, useParams } from 'react-router-dom';
-import { Value } from 'sass';
+import { useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { getDetailProduct, getRelatedProducts } from '@/apis/productsService';
 import LoadingTextCommon from '@/components/LoadingTextCommon/LoadingTextCommon';
+import { handleAddProductToCartCommon } from '@/utils/helper';
+import { SideBarContext } from '@/contexts/SideBarProvider';
+import { ToastContext } from '@/contexts/ToastProvider';
+import Cookies from 'js-cookie';
 
 const INCREMENT = 'increment';
 const DECREMENT = 'decrement';
@@ -42,7 +45,8 @@ function DetailProduct() {
         active,
         clear,
         activeDisableBtn,
-        loading
+        loading,
+        emptyData
     } = styles;
 
     const [menuSelected, setMenuSelected] = useState(1);
@@ -51,8 +55,13 @@ function DetailProduct() {
     const [data, setData] = useState();
     const [relatedData, setRelatedData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-
     const param = useParams();
+    const navigate = useNavigate();
+    const { setIsOpen, setType, handleGetListProductsCart } =
+        useContext(SideBarContext);
+    const { toast } = useContext(ToastContext);
+    const userId = Cookies.get('userId');
+    const [isLoadingBtn, setIsLoadingBtn] = useState(false);
 
     const dataAccordionMenu = [
         {
@@ -77,27 +86,6 @@ function DetailProduct() {
         setMenuSelected(id);
     };
 
-    const tempDataSlider = [
-        {
-            image: 'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
-            name: 'test product',
-            price: '1,879.99',
-            size: [{ name: 'L' }, { name: 'M' }]
-        },
-        {
-            image: 'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
-            name: 'test product',
-            price: '1,879.99',
-            size: [{ name: 'L' }, { name: 'M' }]
-        },
-        {
-            image: 'https://xstore.8theme.com/elementor2/marseille04/wp-content/uploads/sites/2/2022/12/Image-6.1-min.jpg',
-            name: 'test product',
-            price: '1,879.99',
-            size: [{ name: 'L' }, { name: 'M' }]
-        }
-    ];
-
     const handleSelectedSize = (size) => {
         setSizeSelected(size);
     };
@@ -119,7 +107,8 @@ function DetailProduct() {
             setData(data);
             setIsLoading(false);
         } catch (error) {
-            console.log(error);
+            toast.error('Có lỗi khi tải dữ liệu');
+            setData();
             setIsLoading(false);
         }
     };
@@ -131,12 +120,35 @@ function DetailProduct() {
             setRelatedData(data);
             setIsLoading(false);
         } catch (error) {
-            console.log(error);
+            toast.error('Có lỗi khi tải dữ liệu');
+            setRelatedData([]);
             setIsLoading(false);
         }
     };
 
-    console.log(relatedData);
+    /*************  ✨ Windsurf Command ⭐  *************/
+    /**
+     * Add product to cart
+     *
+     * This function adds product to cart. It will call handleAddProductToCartCommon
+     * function with suitable params. If add product to cart successfully, it will
+     * open side bar and set type of side bar is 'cart'
+     */
+    /*******  5c02cb98-73af-43e5-8918-60551b368c9c  *******/
+    const handleAdd = () => {
+        handleAddProductToCartCommon(
+            userId,
+            setIsOpen,
+            setType,
+            toast,
+            sizeSelected,
+            param.id,
+            quantity,
+            setIsLoadingBtn,
+            handleGetListProductsCart
+        );
+    };
+
     useEffect(() => {
         if (param.id) {
             fetchDataDetail(param.id);
@@ -161,151 +173,199 @@ function DetailProduct() {
                             <LoadingTextCommon />
                         </div>
                     ) : (
-                        <div className={contentSection}>
-                            <div className={imageBox}>
-                                {data?.images.map((item, index) =>
-                                    handleRenderZoomImage(item)
-                                )}
-                            </div>
-                            <div className={infoBox}>
-                                <h1>{data?.name}</h1>
-                                <p className={price}>${data?.price}</p>
-                                <p className={description}>
-                                    {data?.description}
-                                </p>
+                        <>
+                            {!data ? (
+                                <div className={emptyData}>
+                                    <p>No Result</p>
+                                    <div>
+                                        <Button
+                                            content={'Back to Our Shop'}
+                                            onClick={() => navigate('/shop')}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className={contentSection}>
+                                    <div className={imageBox}>
+                                        {data?.images.map((item, index) =>
+                                            handleRenderZoomImage(item)
+                                        )}
+                                    </div>
+                                    <div className={infoBox}>
+                                        <h1>{data?.name}</h1>
+                                        <p className={price}>${data?.price}</p>
+                                        <p className={description}>
+                                            {data?.description}
+                                        </p>
 
-                                <p className={titleSize}>Size {sizeSelected}</p>
-                                <div className={boxSize}>
-                                    {data?.size.map((itemSize, index) => {
-                                        return (
-                                            <div
-                                                className={classNames(size, {
-                                                    [active]:
-                                                        sizeSelected ===
-                                                        itemSize.name
-                                                })}
-                                                key={index}
-                                                onClick={() =>
-                                                    handleSelectedSize(
-                                                        itemSize.name
-                                                    )
+                                        <p className={titleSize}>
+                                            Size {sizeSelected}
+                                        </p>
+                                        <div className={boxSize}>
+                                            {data?.size.map(
+                                                (itemSize, index) => {
+                                                    return (
+                                                        <div
+                                                            className={classNames(
+                                                                size,
+                                                                {
+                                                                    [active]:
+                                                                        sizeSelected ===
+                                                                        itemSize.name
+                                                                }
+                                                            )}
+                                                            key={index}
+                                                            onClick={() =>
+                                                                handleSelectedSize(
+                                                                    itemSize.name
+                                                                )
+                                                            }
+                                                        >
+                                                            {itemSize.name}
+                                                        </div>
+                                                    );
+                                                }
+                                            )}
+                                        </div>
+
+                                        {sizeSelected && (
+                                            <p
+                                                className={clear}
+                                                onClick={
+                                                    handleClearSizeSelected
                                                 }
                                             >
-                                                {itemSize.name}
+                                                clear
+                                            </p>
+                                        )}
+
+                                        <div className={functionInfo}>
+                                            <div className={incrementAmount}>
+                                                <div
+                                                    onClick={() =>
+                                                        handleSetQuantity(
+                                                            DECREMENT
+                                                        )
+                                                    }
+                                                >
+                                                    -
+                                                </div>
+                                                <div>{quantity}</div>
+                                                <div
+                                                    onClick={() =>
+                                                        handleSetQuantity(
+                                                            INCREMENT
+                                                        )
+                                                    }
+                                                >
+                                                    +
+                                                </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
 
-                                {sizeSelected && (
-                                    <p
-                                        className={clear}
-                                        onClick={handleClearSizeSelected}
-                                    >
-                                        clear
-                                    </p>
-                                )}
-
-                                <div className={functionInfo}>
-                                    <div className={incrementAmount}>
-                                        <div
-                                            onClick={() =>
-                                                handleSetQuantity(DECREMENT)
-                                            }
-                                        >
-                                            -
+                                            <div className={boxBtn}>
+                                                <Button
+                                                    content={
+                                                        isLoadingBtn ? (
+                                                            <LoadingTextCommon />
+                                                        ) : (
+                                                            'ADD TO CART'
+                                                        )
+                                                    }
+                                                    customClassname={
+                                                        !sizeSelected &&
+                                                        activeDisableBtn
+                                                    }
+                                                    onClick={handleAdd}
+                                                />
+                                            </div>
                                         </div>
-                                        <div>{quantity}</div>
-                                        <div
-                                            onClick={() =>
-                                                handleSetQuantity(INCREMENT)
-                                            }
-                                        >
-                                            +
+
+                                        <div className={orSection}>
+                                            <div></div>
+                                            <span>OR</span>
+                                            <div></div>
                                         </div>
-                                    </div>
 
-                                    <div className={boxBtn}>
-                                        <Button
-                                            content={'ADD TO CART'}
-                                            customClassname={
-                                                !sizeSelected &&
-                                                activeDisableBtn
+                                        <div>
+                                            <Button
+                                                content={'BUY NOW'}
+                                                customClassname={
+                                                    !sizeSelected &&
+                                                    activeDisableBtn
+                                                }
+                                            />
+                                        </div>
+
+                                        <div className={addFunc}>
+                                            <div>
+                                                <CiHeart />
+                                            </div>
+                                            <div>
+                                                <TfiReload />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <PaymentMethods />
+                                        </div>
+
+                                        <div className={info}>
+                                            <div>
+                                                Brand: <span>Brand 04</span>
+                                            </div>
+
+                                            <div>
+                                                SKU: <span>2345</span>
+                                            </div>
+
+                                            <div>
+                                                Category: <span>All</span>
+                                            </div>
+                                        </div>
+
+                                        {dataAccordionMenu.map(
+                                            (item, index) => {
+                                                return (
+                                                    <AccordionMenu
+                                                        key={index}
+                                                        titleMenu={
+                                                            item.titleMenu
+                                                        }
+                                                        contentJsx={
+                                                            item.content
+                                                        }
+                                                        onClick={() =>
+                                                            handleSetMenuSelected(
+                                                                item.id
+                                                            )
+                                                        }
+                                                        isSelected={
+                                                            menuSelected ===
+                                                            item.id
+                                                        }
+                                                    />
+                                                );
                                             }
-                                        />
+                                        )}
                                     </div>
                                 </div>
-
-                                <div className={orSection}>
-                                    <div></div>
-                                    <span>OR</span>
-                                    <div></div>
-                                </div>
-
-                                <div>
-                                    <Button
-                                        content={'BUY NOW'}
-                                        customClassname={
-                                            !sizeSelected && activeDisableBtn
-                                        }
-                                    />
-                                </div>
-
-                                <div className={addFunc}>
-                                    <div>
-                                        <CiHeart />
-                                    </div>
-                                    <div>
-                                        <TfiReload />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <PaymentMethods />
-                                </div>
-
-                                <div className={info}>
-                                    <div>
-                                        Brand: <span>Brand 04</span>
-                                    </div>
-
-                                    <div>
-                                        SKU: <span>2345</span>
-                                    </div>
-
-                                    <div>
-                                        Category: <span>All</span>
-                                    </div>
-                                </div>
-
-                                {dataAccordionMenu.map((item, index) => {
-                                    return (
-                                        <AccordionMenu
-                                            key={index}
-                                            titleMenu={item.titleMenu}
-                                            contentJsx={item.content}
-                                            onClick={() =>
-                                                handleSetMenuSelected(item.id)
-                                            }
-                                            isSelected={
-                                                menuSelected === item.id
-                                            }
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
+                            )}
+                        </>
                     )}
 
-                    <div>
-                        <div>Related products</div>
+                    {relatedData.length ? (
+                        <div>
+                            <div>Related products</div>
 
-                        <SliderCommon
-                            data={relatedData}
-                            isProductItem
-                            showItem={4}
-                        />
-                    </div>
+                            <SliderCommon
+                                data={relatedData}
+                                isProductItem
+                                showItem={4}
+                            />
+                        </div>
+                    ) : (
+                        <></>
+                    )}
                 </MainLayout>
             </div>
 

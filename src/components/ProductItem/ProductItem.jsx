@@ -13,6 +13,7 @@ import { CiHeart } from 'react-icons/ci';
 import { TfiReload } from 'react-icons/tfi';
 import { LiaEyeSolid } from 'react-icons/lia';
 import { useNavigate } from 'react-router-dom';
+import { handleAddProductToCartCommon } from '@/utils/helper';
 
 function ProductItem({
     src,
@@ -62,40 +63,17 @@ function ProductItem({
     };
 
     const handleAddToCart = () => {
-        if (!userId) {
-            setIsOpen(true);
-            setType('login');
-            toast.warning('Please login to add product to card');
-
-            return;
-        }
-
-        if (!sizeChoose) {
-            toast.warning('Please choose size');
-            return;
-        }
-
-        const data = {
+        handleAddProductToCartCommon(
             userId,
-            productId: details._id,
-            quantity: 1,
-            size: sizeChoose
-            // isMultiple: false
-        };
-
-        setIsLoading(true);
-        addProductToCart(data)
-            .then((res) => {
-                setIsOpen(true);
-                setType('cart');
-                toast.success('Add product to cart successfully');
-                setIsLoading(false);
-                handleGetListProductsCart(userId, 'cart');
-            })
-            .catch((err) => {
-                toast.error('Add product to cart failed');
-                setIsLoading(false);
-            });
+            setIsOpen,
+            setType,
+            toast,
+            sizeChoose,
+            details._id,
+            1, // quantity
+            setIsLoading,
+            handleGetListProductsCart
+        );
     };
 
     const handleShowDetailProductSideBar = () => {
@@ -212,7 +190,7 @@ function ProductItem({
                                 isLoading ? (
                                     <LoadingTextCommon />
                                 ) : (
-                                    'ADD TO CARD'
+                                    'ADD TO CART'
                                 )
                             }
                             onClick={handleAddToCart}
