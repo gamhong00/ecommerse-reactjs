@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import CartSummary from '@pages/Cart/components/contents/CartSummary';
 import { useEffect } from 'react';
 import { getCart } from '@/apis/cartService';
+import { use } from 'react';
 
 function Contents() {
     const {
@@ -70,15 +71,17 @@ function Contents() {
     };
 
     useEffect(() => {
-        getCart(userId)
-            .then((res) => {
-                setListProductCart(res.data.data);
-                setIsLoading(false);
-            })
-            .catch((err) => {
-                setListProductCart([]);
-                setIsLoading(false);
-            });
+        if (userId) {
+            getCart(userId)
+                .then((res) => {
+                    setListProductCart(res.data.data);
+                    setIsLoading(false);
+                })
+                .catch((err) => {
+                    setListProductCart([]);
+                    setIsLoading(false);
+                });
+        }
     }, []);
 
     return (

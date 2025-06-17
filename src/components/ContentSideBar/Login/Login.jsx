@@ -65,7 +65,7 @@ function Login() {
                         toast.success('Sign in successfully!');
 
                         setIsOpen(false);
-                        handleGetListProductsCart(id, 'cart ');
+                        handleGetListProductsCart(id, 'cart');
                     })
                     .catch((err) => {
                         // toast.error(err.response.data.message);

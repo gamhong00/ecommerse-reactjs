@@ -11,6 +11,8 @@ import useScrollHandling from '@/hooks/useScrollHandling';
 import { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { SideBarContext } from '@/contexts/SideBarProvider';
+import { use } from 'react';
+import { StoreContext } from '@/contexts/StoreProvider';
 
 function MyHeader() {
     const {
@@ -27,12 +29,32 @@ function MyHeader() {
 
     const { scrollPosition } = useScrollHandling();
     const [fixedPosition, setFixedPosition] = useState(false);
-    const { setIsOpen, setType, listProductCart } = useContext(SideBarContext);
+    const {
+        setIsOpen,
+        setType,
+        listProductCart,
+        useId,
+        handleGetListProductsCart
+    } = useContext(SideBarContext);
 
+    const { userInfo } = useContext(StoreContext);
+    // console.log(userInfo);
     const handleOpenSidebar = (type) => {
         setIsOpen(true);
         setType(type);
     };
+
+    const handleOpenCartSideBar = () => {
+        handleGetListProductsCart(useId, 'cart');
+        handleOpenSidebar('cart');
+    };
+
+    const totalItemCart = listProductCart.length
+        ? listProductCart.reduce((acc, item) => {
+              return (acc += item.quantity);
+          }, 0)
+        : 0;
+
     useEffect(() => {
         setFixedPosition(scrollPosition > 80);
     });
@@ -91,11 +113,11 @@ function MyHeader() {
                         <div className={boxCart}>
                             <PiShoppingCart
                                 style={{ fontSize: '25px' }}
-                                onClick={() => handleOpenSidebar('cart')}
+                                onClick={() => handleOpenCartSideBar()}
                             />
 
                             <div className={quantity}>
-                                {listProductCart.length}
+                                {totalItemCart || userInfo?.amountCart || 0}
                             </div>
                         </div>
                     </div>
