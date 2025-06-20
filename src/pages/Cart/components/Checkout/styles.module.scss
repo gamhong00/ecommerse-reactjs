@@ -1,0 +1,40 @@
+.container {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+
+    .leftBody {
+        flex-grow: 1;
+
+        .coupon {
+            font-size: 14px;
+            color: #222;
+
+            span {
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        }
+
+        .title {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .row {
+            margin-bottom: 20px;
+        }
+
+        .row2Column {
+            display: flex;
+            gap: 20px;
+        }
+    }
+
+    .rightBody {
+        max-width: 500px;
+        width: 100%;
+        background-color: black;
+        height: 500px;
+    }
+}
