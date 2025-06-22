@@ -34,7 +34,91 @@
     .rightBody {
         max-width: 500px;
         width: 100%;
-        background-color: black;
-        height: 500px;
+        // height: auto;
+        align-self: flex-start; //căn chỉnh item theo trục dọc và ghi đè lên align-item, cao vừa đủ nội dung
+        border: 2px solid #333;
+        padding: 15px 25px;
+
+        .items {
+            height: 85px;
+            overflow: auto;
+            border-bottom: 1px solid #ccc;
+            border-top: 1px solid #ccc;
+            padding: 20px 0;
+
+            // Custom scrollbar (Webkit browsers)
+            &::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background-color: #bbb;
+                border-radius: 10px;
+            }
+
+            &::-webkit-scrollbar-thumb:hover {
+                background-color: #999;
+            }
+
+            .item {
+                display: flex;
+                gap: 10px;
+                align-items: flex-start;
+                margin-bottom: 10px;
+
+                img {
+                    width: 70px;
+                    height: 80px;
+                }
+
+                p {
+                    margin: 0 0 10px 0;
+                    color: #555;
+                }
+            }
+        }
+
+        .title {
+            font-size: 16px;
+            color: #333;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        .subTotal {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            margin-top: 8px;
+
+            p:nth-child(2) {
+                font-size: 14px;
+            }
+        }
+
+        .total {
+            display: flex;
+            justify-content: space-between;
+            color: #222;
+            font-size: 20px;
+        }
+
+        .payment {
+            border-top: 1px solid #ccc;
+            padding-top: 25px;
+            margin-bottom: 10px;
+
+            label {
+                color: #222;
+            }
+        }
+
+        .btn {
+            margin-top: 30px;
+        }
     }
 }

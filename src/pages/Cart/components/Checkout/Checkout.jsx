@@ -2,8 +2,9 @@ import InputCustom from '@components/InputCommon2/Input';
 import { useForm } from 'react-hook-form';
 import styles from './styles.module.scss';
 import cls from 'classnames';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import RightBody from '@pages/Cart/components/Checkout/RightBody';
 
 const CN_BASE = 'https://countriesnow.space/api/v0.1';
 function Checkout() {
@@ -26,8 +27,15 @@ function Checkout() {
         watch,
         formState: { errors }
     } = useForm();
+    const formRef = useRef();
 
-    // console.log(errors);
+    console.log(formRef);
+
+    console.log(errors);
+
+    const handleExternalSubmit = () => {
+        formRef.current.requestSubmit();
+    };
 
     useEffect(() => {
         axios.get(`${CN_BASE}/countries/iso`).then((res) =>
@@ -102,7 +110,10 @@ function Checkout() {
 
                 <p className={title}>BILLING DETAILS</p>
 
-                <form onSubmit={handleSubmit((data) => console.log(data))}>
+                <form
+                    ref={formRef}
+                    onSubmit={handleSubmit((data) => console.log(data))}
+                >
                     <div className={cls(row, row2Column)}>
                         <InputCustom
                             label={'First Name'}
@@ -148,12 +159,9 @@ function Checkout() {
                             label={'Street address'}
                             type={'text'}
                             isRequired
-                            register={
-                                (register('street'),
-                                {
-                                    required: true
-                                })
-                            }
+                            register={register('street', {
+                                required: true
+                            })}
                         />
                     </div>
 
@@ -202,12 +210,9 @@ function Checkout() {
                             label={'ZIP Code'}
                             type={'text'}
                             isRequired
-                            register={
-                                (register('zipCode'),
-                                {
-                                    required: true
-                                })
-                            }
+                            register={register('zipCode', {
+                                required: true
+                            })}
                         />
                     </div>
 
@@ -216,20 +221,15 @@ function Checkout() {
                             label={'Email Address'}
                             type={'text'}
                             isRequired
-                            register={
-                                (register('email'),
-                                {
-                                    required: true
-                                })
-                            }
+                            register={register('email', {
+                                required: true
+                            })}
                         />
                     </div>
-
-                    <button type='submit'>Submit</button>
                 </form>
             </div>
 
-            <div className={rightBody}></div>
+            <RightBody handleExternalSubmit={handleExternalSubmit} />
         </div>
     );
 }
