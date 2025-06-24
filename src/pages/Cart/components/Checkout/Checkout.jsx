@@ -5,6 +5,8 @@ import cls from 'classnames';
 import { use, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import RightBody from '@pages/Cart/components/Checkout/RightBody';
+import { createOrder } from '@/apis/orderService';
+import { useNavigate } from 'react-router-dom';
 
 const CN_BASE = 'https://countriesnow.space/api/v0.1';
 function Checkout() {
@@ -20,6 +22,7 @@ function Checkout() {
     const [countries, setCountries] = useState([]);
     const [cities, setCities] = useState([]);
     const [states, setStates] = useState([]);
+    const navigate = useNavigate();
 
     const {
         register,
@@ -29,12 +32,21 @@ function Checkout() {
     } = useForm();
     const formRef = useRef();
 
-    console.log(formRef);
-
-    console.log(errors);
+    // console.log(errors);
 
     const handleExternalSubmit = () => {
         formRef.current.requestSubmit();
+    };
+
+    const onSubmit = async (data) => {
+        try {
+            const res = await createOrder(data);
+            navigate(
+                `/order?id=${res.data.data._id}&totalAmount=${res.data.data.totalAmount}`
+            );
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     useEffect(() => {
@@ -48,40 +60,79 @@ function Checkout() {
         );
     }, []);
 
+    // useEffect(() => {
+    //     if (!watch('country')) return;
+
+    //     if (
+    //         watch('country') === 'Vietnam' &&
+    //         !localStorage.getItem('listCities')
+    //     ) {
+    //         axios
+    //             .get('https://provinces.open-api.vn/api/?depth=2')
+    //             .then((res) => {
+    //                 localStorage.setItem(
+    //                     'listCities',
+    //                     JSON.stringify(res.data)
+    //                 );
+
+    //                 setCities(
+    //                     res.data.data.map((item) => ({
+    //                         label: item.name,
+    //                         value: item.codename
+    //                     }))
+    //                 );
+    //             });
+
+    //         return;
+    //     }
+
+    //     if (localStorage.getItem('listCities')) {
+    //         const data = JSON.parse(localStorage.getItem('listCities'));
+    //         setCities(
+    //             data.map((item) => ({
+    //                 label: item.name,
+    //                 value: item.codename
+    //             }))
+    //         );
+    //     }
+    // }, [watch('country')]);
+
     useEffect(() => {
-        if (!watch('country')) return;
+        const selectedCountry = watch('country');
+        if (!selectedCountry) return;
 
-        if (
-            watch('country') === 'Vietnam' &&
-            !localStorage.getItem('listCities')
-        ) {
-            axios
-                .get('https://provinces.open-api.vn/api/?depth=2')
-                .then((res) => {
-                    localStorage.setItem(
-                        'listCities',
-                        JSON.stringify(res.data)
-                    );
-
-                    setCities(
-                        res.data.data.map((item) => ({
-                            label: item.name,
-                            value: item.codename
-                        }))
-                    );
-                });
-
-            return;
-        }
-
-        if (localStorage.getItem('listCities')) {
+        const loadCitiesFromLocal = () => {
             const data = JSON.parse(localStorage.getItem('listCities'));
-            setCities(
-                data.map((item) => ({
-                    label: item.name,
-                    value: item.codename
-                }))
-            );
+            if (data) {
+                setCities(
+                    data.map((item) => ({
+                        label: item.name,
+                        value: item.codename
+                    }))
+                );
+            }
+        };
+
+        if (selectedCountry === 'Vietnam') {
+            const cached = localStorage.getItem('listCities');
+            if (!cached) {
+                axios
+                    .get('https://provinces.open-api.vn/api/?depth=2')
+                    .then((res) => {
+                        localStorage.setItem(
+                            'listCities',
+                            JSON.stringify(res.data)
+                        );
+                        setTimeout(() => {
+                            loadCitiesFromLocal(); // đảm bảo gọi sau khi localStorage đã lưu xong
+                        }, 0);
+                    });
+            } else {
+                loadCitiesFromLocal();
+            }
+        } else {
+            // Nếu là quốc gia khác, có thể setCities([]) hoặc logic tương ứng
+            setCities([]);
         }
     }, [watch('country')]);
 
@@ -110,10 +161,7 @@ function Checkout() {
 
                 <p className={title}>BILLING DETAILS</p>
 
-                <form
-                    ref={formRef}
-                    onSubmit={handleSubmit((data) => console.log(data))}
-                >
+                <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
                     <div className={cls(row, row2Column)}>
                         <InputCustom
                             label={'First Name'}
@@ -123,6 +171,7 @@ function Checkout() {
                                 required: true,
                                 maxLength: 25
                             })}
+                            isError={errors.firstName}
                         />
                         <InputCustom
                             label={'Last Name'}
@@ -132,6 +181,7 @@ function Checkout() {
                                 required: true,
                                 maxLength: 25
                             })}
+                            isError={errors.lastName}
                         />
                     </div>
 
@@ -151,10 +201,11 @@ function Checkout() {
                             register={register('country', {
                                 required: true
                             })}
+                            isError={errors.country}
                         />
                     </div>
 
-                    <div>
+                    <div className={row}>
                         <InputCustom
                             label={'Street address'}
                             type={'text'}
@@ -162,6 +213,7 @@ function Checkout() {
                             register={register('street', {
                                 required: true
                             })}
+                            isError={errors.street}
                         />
                     </div>
 
@@ -180,6 +232,7 @@ function Checkout() {
                             dataOptions={cities}
                             isRequired
                             register={register('cities', { required: true })}
+                            isError={errors.cities}
                         />
                     </div>
 
@@ -191,6 +244,7 @@ function Checkout() {
                             register={register('state', {
                                 required: true
                             })}
+                            isError={errors.state}
                         />
                     </div>
 
@@ -202,6 +256,7 @@ function Checkout() {
                             register={register('phone', {
                                 required: true
                             })}
+                            isError={errors.phone}
                         />
                     </div>
 
@@ -213,6 +268,7 @@ function Checkout() {
                             register={register('zipCode', {
                                 required: true
                             })}
+                            isError={errors.zipCode}
                         />
                     </div>
 
@@ -224,6 +280,7 @@ function Checkout() {
                             register={register('email', {
                                 required: true
                             })}
+                            isError={errors.email}
                         />
                     </div>
                 </form>
