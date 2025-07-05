@@ -2,11 +2,14 @@ import InputCustom from '@components/InputCommon2/Input';
 import { useForm } from 'react-hook-form';
 import styles from './styles.module.scss';
 import cls from 'classnames';
-import { use, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import RightBody from '@pages/Cart/components/Checkout/RightBody';
 import { createOrder } from '@/apis/orderService';
 import { useNavigate } from 'react-router-dom';
+import { StepperContext } from '@contexts/StepperProvider';
+import { SideBarContext } from '@contexts/SideBarProvider';
+import { deleteCart } from '@/apis/cartService';
 
 const CN_BASE = 'https://countriesnow.space/api/v0.1';
 function Checkout() {
@@ -23,6 +26,9 @@ function Checkout() {
     const [cities, setCities] = useState([]);
     const [states, setStates] = useState([]);
     const navigate = useNavigate();
+    const { setCurrentStep } = useContext(StepperContext);
+
+    const { currentStep } = useContext(StepperContext);
 
     const {
         register,
@@ -41,13 +47,22 @@ function Checkout() {
     const onSubmit = async (data) => {
         try {
             const res = await createOrder(data);
+            setCurrentStep(3);
             navigate(
-                `/order?id=${res.data.data._id}&totalAmount=${res.data.data.totalAmount}`
+                `/cart?id=${res.data.data._id}&totalAmount=${res.data.data.totalAmount}`
             );
         } catch (error) {
             console.log(error);
         }
     };
+
+    // useEffect(() => {
+    //     if (currentStep === 2) {
+    //         axios.get(`/api/cart?userId=${userId}`).then((res) => {
+    //             setListProductCart(res.data?.cart || []);
+    //         });
+    //     }
+    // }, [currentStep]);
 
     useEffect(() => {
         axios.get(`${CN_BASE}/countries/iso`).then((res) =>

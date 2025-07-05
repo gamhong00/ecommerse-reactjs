@@ -31,7 +31,7 @@ function Steps() {
                         <>
                             <Stepper
                                 key={index}
-                                nummber={item.number}
+                                number={item.number}
                                 content={item.content}
                                 isDisable={index >= currentStep}
                             />

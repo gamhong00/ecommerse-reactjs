@@ -59,6 +59,7 @@ function Contents() {
         setIsLoading(true);
         deleteCart({ userId })
             .then((res) => {
+                setListProductCart([]); // ✅ reset giỏ hàng ngay
                 handleGetListProductsCart(userId, 'cart');
             })
             .catch((err) => {
